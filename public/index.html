@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Quản Lý License Key iOS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #0b0f19;
+            --card-bg: #151d2e;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --border: #222f47;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* MÀN HÌNH ĐĂNG NHẬP */
+        #login-view {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 35px 30px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .login-card h2 {
+            font-size: 22px;
+            margin-bottom: 8px;
+            text-align: center;
+            color: #fff;
+        }
+
+        .login-card p {
+            color: var(--text-sub);
+            font-size: 13px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        /* GIAO DIỆN QUẢN TRỊ */
+        #dashboard-view {
+            display: none;
+            padding: 25px 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        header h1 {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .stat-card .label {
+            color: var(--text-sub);
+            font-size: 13px;
+        }
+
+        .stat-card .value {
+            font-size: 26px;
+            font-weight: 700;
+            margin-top: 6px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            padding: 22px;
+            margin-bottom: 25px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 18px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-sub);
+        }
+
+        input, select {
+            background: #0b0f19;
+            border: 1px solid var(--border);
+            color: #fff;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+        }
+
+        .btn {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            height: fit-content;
+        }
+
+        .btn:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-logout {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--danger);
+        }
+
+        .btn-logout:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th {
+            background: #111827;
+            color: var(--text-sub);
+            padding: 12px 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .key-badge {
+            font-family: monospace;
+            font-size: 14px;
+            font-weight: 700;
+            background: rgba(79, 70, 229, 0.15);
+            color: #818cf8;
+            padding: 4px 8px;
+            border-radius: 6px;
+            display: inline-block;
+        }
+
+        .status-badge {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 20px;
+        }
+
+        .status-active { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+        .status-expired { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+        .status-locked { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+
+        .btn-action {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: #fff;
+            padding: 5px 9px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-right: 4px;
+        }
+
+        .btn-action:hover { border-color: #fff; }
+        .btn-action.btn-del:hover { background: var(--danger); border-color: var(--danger); }
+        
+        .copy-btn {
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 6px;
+            opacity: 0.7;
+        }
+        .copy-btn:hover { opacity: 1; }
+    </style>
+</head>
+<body>
+
+    <!-- 1. MÀN HÌNH ĐĂNG NHẬP -->
+    <div id="login-view">
+        <div class="login-card">
+            <h2>🔐 Đăng Nhập Quản Trị</h2>
+            <p>Hệ thống quản lý License Key Tool iOS</p>
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group" style="margin-bottom: 14px;">
+                    <label>Tài khoản:</label>
+                    <input type="text" id="username" placeholder="Nhập tài khoản" required autofocus>
+                </div>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label>Mật khẩu:</label>
+                    <input type="password" id="password" placeholder="Nhập mật khẩu" required>
+                </div>
+                <button type="submit" class="btn" style="width: 100%; padding: 12px;">Đăng Nhập Ngay</button>
+                <div id="loginError" style="color: var(--danger); font-size: 13px; margin-top: 12px; text-align: center; display: none;"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. MÀN HÌNH DASHBOARD QUẢN TRỊ KEY -->
+    <div id="dashboard-view">
+        <div class="container">
+            <header>
+                <div>
+                    <h1>🔑 Bảng Điều Khiển License Key</h1>
+                    <p style="color: var(--text-sub); font-size: 13px; margin-top: 4px;">Tài khoản đăng nhập: <b style="color: #fff;">hson</b></p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn" onclick="fetchKeys()">🔄 Làm Mới</button>
+                    <button class="btn btn-logout" onclick="handleLogout()">🚪 Đăng Xuất</button>
+                </div>
+            </header>
+
+            <!-- Thống kê -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="label">Tổng số Key</div>
+                    <div class="value" id="stat-total">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Đang Hoạt Động</div>
+                    <div class="value" id="stat-active" style="color: var(--success);">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Đã Gắn iPhone (Device ID)</div>
+                    <div class="value" id="stat-bound" style="color: #818cf8;">0</div>
+                </div>
+            </div>
+
+            <!-- Form tạo Key -->
+            <div class="card">
+                <div class="card-title">➕ Tạo Mã Key Bản Quyền Mới</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Tên khách hàng / Ghi chú:</label>
+                        <input type="text" id="keyNote" placeholder="Ví dụ: Khách Zalo Minh Tuấn">
+                    </div>
+                    <div class="form-group">
+                        <label>Thời hạn sử dụng:</label>
+                        <select id="keyDuration">
+                            <option value="1">1 Ngày (Dùng thử)</option>
+                            <option value="7">7 Ngày (1 Tuần)</option>
+                            <option value="30" selected>30 Ngày (1 Tháng)</option>
+                            <option value="90">90 Ngày (3 Tháng)</option>
+                            <option value="365">365 Ngày (1 Năm)</option>
+                            <option value="3650">Vĩnh Viễn (10 Năm)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Gói tính năng:</label>
+                        <select id="keyPackage">
+                            <option value="VIP">VIP (Mở khóa toàn bộ)</option>
+                            <option value="PRO">PRO</option>
+                            <option value="BASIC">Cơ Bản</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tùy chọn Key (Để trống để tự tạo ngẫu nhiên):</label>
+                        <input type="text" id="customKey" placeholder="Ví dụ: VIP-SON-2026">
+                    </div>
+                </div>
+                <div style="margin-top: 15px; display: flex; justify-content: flex-end;">
+                    <button class="btn" onclick="createKey()">Tạo & Kích Hoạt Key</button>
+                </div>
+            </div>
+
+            <!-- Bảng danh sách Key -->
+            <div class="card">
+                <div class="card-title">📋 Danh Sách Key Đã Phát Hành</div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Mã Key</th>
+                                <th>Khách Hàng</th>
+                                <th>Gói</th>
+                                <th>Hạn Dùng</th>
+                                <th>Trạng Thái</th>
+                                <th>Device ID iPhone</th>
+                                <th>Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="keyTableBody">
+                            <tr><td colspan="7" style="text-align: center; color: var(--text-sub);">Đang tải dữ liệu...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let authToken = localStorage.getItem('auth_token');
+
+        // Khởi động kiểm tra token
+        if (authToken) {
+            showDashboard();
+        } else {
+            showLogin();
+        }
+
+        function showLogin() {
+            document.getElementById('login-view').style.display = 'flex';
+            document.getElementById('dashboard-view').style.display = 'none';
+        }
+
+        function showDashboard() {
+            document.getElementById('login-view').style.display = 'none';
+            document.getElementById('dashboard-view').style.display = 'block';
+            fetchKeys();
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('username').value.trim();
+            const p = document.getElementById('password').value.trim();
+            const errDiv = document.getElementById('loginError');
+
+            try {
+                const res = await fetch('/admin/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: u, password: p })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    authToken = data.token;
+                    localStorage.setItem('auth_token', authToken);
+                    errDiv.style.display = 'none';
+                    showDashboard();
+                } else {
+                    errDiv.innerText = data.message || "Đăng nhập thất bại";
+                    errDiv.style.display = 'block';
+                }
+            } catch (err) {
+                errDiv.innerText = "Không thể kết nối tới máy chủ!";
+                errDiv.style.display = 'block';
+            }
+        }
+
+        async function handleLogout() {
+            await fetch('/admin/api/logout', {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + authToken }
+            });
+            localStorage.removeItem('auth_token');
+            authToken = null;
+            showLogin();
+        }
+
+        async function fetchKeys() {
+            try {
+                const res = await fetch('/admin/api/keys', {
+                    headers: { 'Authorization': 'Bearer ' + authToken }
+                });
+                if (res.status === 401) {
+                    handleLogout();
+                    return;
+                }
+                const keys = await res.json();
+                renderTable(keys);
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function renderTable(keys) {
+            const tbody = document.getElementById('keyTableBody');
+            tbody.innerHTML = '';
+
+            let activeCount = 0;
+            let boundCount = 0;
+            const now = Date.now();
+
+            if (!keys || keys.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-sub); padding: 30px;">Chưa có Key nào. Nhập thông tin ở trên để tạo Key đầu tiên!</td></tr>';
+            }
+
+            keys.forEach(k => {
+                const isExpired = now > k.expires_at;
+                const isLocked = !k.is_active;
+
+                if (!isExpired && !isLocked) activeCount++;
+                if (k.device_id) boundCount++;
+
+                let statusBadge = '<span class="status-badge status-active">Hoạt Động</span>';
+                if (isLocked) {
+                    statusBadge = '<span class="status-badge status-locked">Đã Khóa</span>';
+                } else if (isExpired) {
+                    statusBadge = '<span class="status-badge status-expired">Hết Hạn</span>';
+                }
+
+                const expireDate = new Date(k.expires_at).toLocaleDateString('vi-VN');
+                const deviceText = k.device_id 
+                    ? `<span style="font-family: monospace; font-size: 12px; color: #38bdf8;" title="${k.device_id}">${k.device_id.substring(0, 10)}...</span>`
+                    : `<span style="color: var(--text-sub); font-size: 12px;">(Chưa kích hoạt)</span>`;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <span class="key-badge">${k.key}</span>
+                        <span class="copy-btn" title="Copy Key" onclick="copyText('${k.key}')">📋</span>
+                    </td>
+                    <td>${k.note || '-'}</td>
+                    <td><b>${k.package_name}</b></td>
+                    <td>${expireDate}</td>
+                    <td>${statusBadge}</td>
+                    <td>${deviceText}</td>
+                    <td>
+                        ${k.device_id ? `<button class="btn-action" onclick="resetDevice('${k.key}')" title="Gỡ máy để khách chuyển sang iPhone khác">Gỡ Máy</button>` : ''}
+                        <button class="btn-action" onclick="toggleStatus('${k.key}', ${k.is_active ? 0 : 1})">${k.is_active ? 'Khóa' : 'Mở'}</button>
+                        <button class="btn-action btn-del" onclick="deleteKey('${k.key}')">Xóa</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('stat-total').innerText = keys.length;
+            document.getElementById('stat-active').innerText = activeCount;
+            document.getElementById('stat-bound').innerText = boundCount;
+        }
+
+        async function createKey() {
+            const note = document.getElementById('keyNote').value;
+            const durationDays = document.getElementById('keyDuration').value;
+            const packageName = document.getElementById('keyPackage').value;
+            const customKey = document.getElementById('customKey').value;
+
+            try {
+                const res = await fetch('/admin/api/keys/create', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + authToken
+                    },
+                    body: JSON.stringify({ note, durationDays, packageName, customKey })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('keyNote').value = '';
+                    document.getElementById('customKey').value = '';
+                    fetchKeys();
+                } else {
+                    alert(data.message || 'Lỗi khi tạo key');
+                }
+            } catch (e) {
+                alert('Lỗi kết nối máy chủ!');
+            }
+        }
+
+        async function resetDevice(key) {
+            if (confirm(`Gỡ thiết bị cho key ${key}? Người dùng sẽ có thể kích hoạt lại trên máy mới.`)) {
+                await fetch('/admin/api/keys/reset-device', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + authToken
+                    },
+                    body: JSON.stringify({ key })
+                });
+                fetchKeys();
+            }
+        }
+
+        async function toggleStatus(key, newStatus) {
+            await fetch('/admin/api/keys/toggle-status', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + authToken
+                },
+                body: JSON.stringify({ key, isActive: newStatus })
+            });
+            fetchKeys();
+        }
+
+        async function deleteKey(key) {
+            if (confirm(`Xác nhận xóa vĩnh viễn key ${key}?`)) {
+                await fetch('/admin/api/keys/delete', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + authToken
+                    },
+                    body: JSON.stringify({ key })
+                });
+                fetchKeys();
+            }
+        }
+
+        function copyText(text) {
+            navigator.clipboard.writeText(text);
+            alert("Đã sao chép mã Key: " + text);
+        }
+    </script>
+</body>
+</html>
